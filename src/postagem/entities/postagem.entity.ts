@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Tema } from '../../tema/entities/tema.entity';
 
 @Entity({ name: 'tb_postagem' }) // Cria uma tabela chamada tb_postagem
 export class Postagem {
@@ -18,4 +19,9 @@ export class Postagem {
 
   @UpdateDateColumn() // Cria uma coluna chamada data atualização da postagem 
   data!: Date; 
+
+  @ManyToOne(() => Tema, (tema) => tema.postagem, {
+    onDelete: "CASCADE"
+  })
+  tema: Tema
 } 

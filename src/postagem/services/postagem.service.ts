@@ -3,6 +3,7 @@ import { ILike, Repository } from "typeorm";
 import { Postagem } from "../entities/postagem.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DeleteResult } from "typeorm/browser";
+import { TemaService } from "../../tema/services/tema.service";
 
 
 @Injectable()
@@ -13,13 +14,19 @@ export class PostagemService {
     //não vamos precisar fazer instância new classe e this.nomevariavel, o nest.js lida com isso
         constructor(
             @InjectRepository(Postagem)
-            private postagemRepository: Repository<Postagem> //Injeção de dependência
+            private postagemRepository: Repository<Postagem>, //Injeção de dependência
+            private temaService: TemaService
         ){}
 
         //no bloco 1 criamos métodos na controller, mas aqui faremos o certo que é criar na service
         //Esse método async findAll vai retornar uma lista (Postagem[]) e isso é uma promessa, por isso o Promise
         async findAll(): Promise<Postagem[]>{
-            return await this.postagemRepository.find(); // esse método find vai fazer o seguinte no banco de dados: select * from tb_postagem. Ele vai retorar uma lista e salvar dentro de Postagem[]
+            return await this.postagemRepository.find({ // esse método find vai fazer o seguinte no banco de dados: select * from tb_postagem. Ele vai retorar uma lista e salvar dentro de Postagem[]
+
+                relations: {
+                    tema: true
+                }
+            }); 
         }
 
         
@@ -28,7 +35,10 @@ export class PostagemService {
         const postagem = await this.postagemRepository.findOne({
             where: {
                 id 
-        } //aqui ele vai salvar no postagem o id passado que ele já verificou se existe no nosso banco também!
+        }, //aqui ele vai salvar no postagem o id passado que ele já verificou se existe no nosso banco também!
+        relations: {
+                    tema: true
+                }
             });
 
         if (!postagem) //ele vai entrar aqui se for nula ou falso (ex: usuário não digitou nada ou digitou algo não válido
@@ -39,12 +49,17 @@ export class PostagemService {
     }
         
         async create(postagem: Postagem): Promise<Postagem>{ //Esse é o método de cadastrar uma nova postagem
+            
+            await this.temaService.findById(postagem.tema.id)
+            
             return await this.postagemRepository.save(postagem);
         }
 
         async update(postagem: Postagem): Promise<Postagem>{
 
             await this.findById(postagem.id)
+
+            await this.temaService.findById(postagem.tema.id)
 
             return await this.postagemRepository.save(postagem);
         }
@@ -59,6 +74,9 @@ export class PostagemService {
             return await this.postagemRepository.find({
                 where:{
                     titulo: ILike(`%${titulo}%`)
+                },
+                relations: {
+                    tema: true
                 }
             })
         }

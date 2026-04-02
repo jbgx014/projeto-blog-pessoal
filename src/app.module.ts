@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Postagem } from './postagem/entities/postagem.entity';
 import { PostagemModule } from './postagem/postagem.modules'; 
+import { Tema } from './tema/entities/tema.entity';
+import { TemaModule } from './tema/tema.modules';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { PostagemModule } from './postagem/postagem.modules';
       username: 'root', //username do database
       password: 'root', //senha do database - tem que ser a que cadastramos no MySQL
       database: 'db_blogpessoal', //aqui é o nome do database, como colocamos no MySQL
-      entities: [Postagem],
+      entities: [Postagem, Tema],
       synchronize: true,
     }),
     PostagemModule,
+    TemaModule
   ],
   controllers: [AppController],
   providers: [AppService],
