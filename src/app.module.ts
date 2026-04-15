@@ -9,18 +9,15 @@ import { TemaModule } from './tema/tema.modules';
 import { AuthModule } from './auth/auth.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { Usuario } from './usuario/entities/usuario.entity';
+import { ConfigModule } from '@nestjs/config';
+import { ProdService } from './data/services/prod.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({ //forRoot significa que estamos criando o ponto central do typeORM
-      type: 'mysql', //tipo de database
-      host: 'localhost', //host do database
-      port: 3306, //porta do database
-      username: 'root', //username do database
-      password: 'root', //senha do database - tem que ser a que cadastramos no MySQL
-      database: 'db_blogpessoal', //aqui é o nome do database, como colocamos no MySQL
-      entities: [Postagem, Tema, Usuario],
-      synchronize: true,
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+	  useClass: ProdService,
+    imports: [ConfigModule],
     }),
     PostagemModule,
     TemaModule,
